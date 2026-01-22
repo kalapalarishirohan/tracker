@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { FileText, Send, CheckCircle2, Loader2 } from "lucide-react";
 import { useSubmissions } from "@/hooks/useDatabase";
 import { useClientStore } from "@/store/clientStore";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function ProjectForm() {
     const currentClient = useClientStore((state) => state.currentClient);
@@ -42,12 +43,31 @@ export default function ProjectForm() {
             status: 'pending'
         });
 
-        setIsSubmitting(false);
-
         if (result) {
+            // Send admin notification email
+            try {
+                await supabase.functions.invoke('send-admin-notification', {
+                    body: {
+                        type: 'project_request',
+                        data: {
+                            projectName: formData.title,
+                            projectType: formData.projectType,
+                            budget: formData.budget,
+                            timeline: formData.timeline,
+                            name: currentClient.name,
+                            email: currentClient.email
+                        }
+                    }
+                });
+            } catch (emailError) {
+                console.error("Email notification error:", emailError);
+            }
+
             setIsSubmitted(true);
             toast.success("Project request submitted!", { description: "Our team will review your submission shortly." });
         }
+
+        setIsSubmitting(false);
     };
 
     if (isSubmitted) {

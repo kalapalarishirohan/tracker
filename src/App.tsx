@@ -15,12 +15,18 @@ import ProjectForm from "@/pages/client/ProjectForm";
 import TicketForm from "@/pages/client/TicketForm";
 import FeedbackForm from "@/pages/client/FeedbackForm";
 import TicketsHistory from "@/pages/client/TicketsHistory";
+import Contact from "@/pages/public/Contact";
+import ProjectRequest from "@/pages/public/ProjectRequest";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        
+        {/* Public Routes */}
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/request-project" element={<ProjectRequest />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />

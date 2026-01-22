@@ -137,6 +137,26 @@ export default function LandingPage() {
                     </Link>
                 </div>
 
+                {/* Additional Actions */}
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                    <Link to="/request-project" className="block">
+                        <Button 
+                            variant="outline"
+                            className="w-full h-14 bg-transparent border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-500 hover:bg-neutral-900/50 rounded-none transition-all duration-300"
+                        >
+                            New Project
+                        </Button>
+                    </Link>
+                    <Link to="/contact" className="block">
+                        <Button 
+                            variant="outline"
+                            className="w-full h-14 bg-transparent border-neutral-800 text-neutral-300 hover:text-white hover:border-neutral-500 hover:bg-neutral-900/50 rounded-none transition-all duration-300"
+                        >
+                            Contact Us
+                        </Button>
+                    </Link>
+                </div>
+
                 {/* Footer Utility Links */}
                 <div className="flex items-center justify-between pt-8 border-t border-neutral-900 mt-8">
                     <div className="flex items-center gap-2 group cursor-pointer">
@@ -144,7 +164,7 @@ export default function LandingPage() {
                         <span className="text-xs text-neutral-500 group-hover:text-neutral-300 transition-colors tracking-wide">Secure Connection</span>
                     </div>
                     
-                    <Link to="/support" className="flex items-center gap-2 group">
+                    <Link to="/contact" className="flex items-center gap-2 group">
                         <span className="text-xs text-neutral-500 group-hover:text-neutral-300 transition-colors tracking-wide">Support Center</span>
                         <LifeBuoy className="w-4 h-4 text-neutral-700 group-hover:text-white transition-colors" />
                     </Link>
