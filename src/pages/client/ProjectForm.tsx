@@ -160,11 +160,11 @@ export default function ProjectForm() {
                                         <SelectValue placeholder="Select range" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-neutral-900 border-neutral-800 text-neutral-300">
-                                        <SelectItem value="under-5k">Under $5,000</SelectItem>
-                                        <SelectItem value="5k-10k">$5,000 - $10,000</SelectItem>
-                                        <SelectItem value="10k-25k">$10,000 - $25,000</SelectItem>
-                                        <SelectItem value="25k-50k">$25,000 - $50,000</SelectItem>
-                                        <SelectItem value="50k-plus">$50,000+</SelectItem>
+                                        <SelectItem value="under-50k">Under ₹50,000</SelectItem>
+                                        <SelectItem value="50k-1L">₹50,000 - ₹1,00,000</SelectItem>
+                                        <SelectItem value="1L-2.5L">₹1,00,000 - ₹2,50,000</SelectItem>
+                                        <SelectItem value="2.5L-5L">₹2,50,000 - ₹5,00,000</SelectItem>
+                                        <SelectItem value="5L-plus">₹5,00,000+</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
