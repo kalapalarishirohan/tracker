@@ -53,7 +53,7 @@ export interface DbTicket {
 export interface DbSubmission {
   id: string;
   client_id: string;
-  type: 'project_request' | 'feedback' | 'general';
+  type: 'project_request' | 'feedback' | 'general' | 'contact';
   data: Record<string, string | number | boolean | null>;
   status: 'pending' | 'reviewed' | 'archived';
   submitted_at: string;
