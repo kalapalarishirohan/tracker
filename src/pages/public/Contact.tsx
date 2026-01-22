@@ -37,6 +37,20 @@ export default function Contact() {
         setIsSubmitting(true);
         
         try {
+            // Store in submissions table
+            const { error: dbError } = await supabase
+                .from('submissions')
+                .insert({
+                    client_id: '00000000-0000-0000-0000-000000000000', // Public submission placeholder
+                    type: 'contact',
+                    data: formData,
+                    status: 'pending'
+                });
+
+            if (dbError) {
+                console.error("Database error:", dbError);
+            }
+
             // Send admin notification email
             const { error } = await supabase.functions.invoke('send-admin-notification', {
                 body: {

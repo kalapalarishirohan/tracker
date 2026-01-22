@@ -43,6 +43,7 @@ export default function SubmissionsList() {
             case 'project_request': return 'Project Request';
             case 'feedback': return 'Feedback';
             case 'general': return 'General';
+            case 'contact': return 'Contact Inquiry';
             default: return type;
         }
     };
@@ -130,12 +131,12 @@ export default function SubmissionsList() {
                 <Card className="bg-[#0A0A0A] border-neutral-800 rounded-sm">
                     <CardContent className="p-6 flex items-center justify-between">
                         <div className="space-y-1">
-                            <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">Feedback</span>
+                            <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">Contact Inquiries</span>
                             <div className="text-2xl font-medium text-white">
-                                {submissions.filter(s => s.type === 'feedback').length}
+                                {submissions.filter(s => s.type === 'contact').length}
                             </div>
                         </div>
-                        <div className="p-2 rounded-full border border-amber-900/50 bg-amber-950/20 text-amber-500">
+                        <div className="p-2 rounded-full border border-emerald-900/50 bg-emerald-950/20 text-emerald-500">
                             <MessageSquare className="w-4 h-4" />
                         </div>
                     </CardContent>
@@ -198,6 +199,8 @@ export default function SubmissionsList() {
                                                     <div className="flex items-center gap-2">
                                                         {submission.type === 'feedback' ? (
                                                             <MessageSquare className="w-4 h-4 text-amber-500" />
+                                                        ) : submission.type === 'contact' ? (
+                                                            <MessageSquare className="w-4 h-4 text-emerald-500" />
                                                         ) : (
                                                             <FileText className="w-4 h-4 text-blue-500" />
                                                         )}
