@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useTickets, DbTicket } from "@/hooks/useDatabase";
 import { useClientStore } from "@/store/clientStore";
 import { Send, CheckCircle2, Loader2, AlertTriangle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function TicketForm() {
     const currentClient = useClientStore((state) => state.currentClient);
@@ -36,12 +37,29 @@ export default function TicketForm() {
             status: 'open',
         });
 
-        setIsSubmitting(false);
-
         if (result) {
+            // Send admin notification email
+            try {
+                await supabase.functions.invoke('send-admin-notification', {
+                    body: {
+                        type: 'ticket',
+                        data: {
+                            subject: ticket.subject,
+                            message: ticket.message,
+                            priority: ticket.priority,
+                            clientId: currentClient.assigned_id
+                        }
+                    }
+                });
+            } catch (emailError) {
+                console.error("Email notification error:", emailError);
+            }
+
             setIsSubmitted(true);
             toast.success("Ticket raised successfully!");
         }
+
+        setIsSubmitting(false);
     };
 
     if (isSubmitted) {
