@@ -56,7 +56,7 @@ export const useStore = create<AppState>((set, get) => ({
     currentClientId: null,
 
     loginAdmin: (password) => {
-        if (password === 'admin123') {
+        if (password === 'rishi@ann2005') {
             set({ isAdminLoggedIn: true });
             return true;
         }
