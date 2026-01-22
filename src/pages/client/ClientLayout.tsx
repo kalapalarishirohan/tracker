@@ -2,7 +2,7 @@ import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useClientStore } from "@/store/clientStore";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShieldCheck, LayoutDashboard, FileText, Ticket, MessageSquare } from "lucide-react";
+import { LogOut, ShieldCheck, LayoutDashboard, FileText, Ticket, MessageSquare, Clock } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +22,8 @@ export default function ClientLayout() {
     const navItems = [
         { icon: LayoutDashboard, label: "Dashboard", path: "/client/portal" },
         { icon: FileText, label: "New Project", path: "/client/portal/project-request" },
-        { icon: Ticket, label: "Support Ticket", path: "/client/portal/tickets" },
+        { icon: Ticket, label: "New Ticket", path: "/client/portal/tickets" },
+        { icon: Clock, label: "Ticket History", path: "/client/portal/tickets-history" },
         { icon: MessageSquare, label: "Feedback", path: "/client/portal/feedback" },
     ];
 
