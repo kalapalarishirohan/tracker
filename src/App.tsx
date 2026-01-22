@@ -14,6 +14,7 @@ import ClientDashboard from "@/pages/client/ClientDashboard";
 import ProjectForm from "@/pages/client/ProjectForm";
 import TicketForm from "@/pages/client/TicketForm";
 import FeedbackForm from "@/pages/client/FeedbackForm";
+import TicketsHistory from "@/pages/client/TicketsHistory";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route index element={<ClientDashboard />} />
           <Route path="new-project" element={<ProjectForm />} />
           <Route path="tickets" element={<TicketForm />} />
+          <Route path="tickets-history" element={<TicketsHistory />} />
           <Route path="feedback" element={<FeedbackForm />} />
         </Route>
 
