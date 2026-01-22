@@ -50,7 +50,7 @@ export default function TicketsHistory() {
           <p className="text-neutral-500 text-sm">Track the progress of your support requests</p>
         </div>
         <Link to="/client/portal/tickets">
-          <Button variant="outline" className="border-neutral-800 text-white hover:bg-neutral-900">
+          <Button className="bg-white hover:bg-neutral-200 text-black font-medium">
             <MessageSquare className="w-4 h-4 mr-2" />
             New Ticket
           </Button>

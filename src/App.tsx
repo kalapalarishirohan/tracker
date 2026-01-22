@@ -36,7 +36,7 @@ function App() {
         <Route path="/client" element={<ClientLogin />} />
         <Route path="/client/portal" element={<ClientLayout />}>
           <Route index element={<ClientDashboard />} />
-          <Route path="new-project" element={<ProjectForm />} />
+          <Route path="project-request" element={<ProjectForm />} />
           <Route path="tickets" element={<TicketForm />} />
           <Route path="tickets-history" element={<TicketsHistory />} />
           <Route path="feedback" element={<FeedbackForm />} />
