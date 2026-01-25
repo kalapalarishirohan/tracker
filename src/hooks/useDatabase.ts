@@ -9,6 +9,7 @@ export interface DbClient {
   name: string;
   email: string;
   company: string | null;
+  is_pro: boolean;
   created_at: string;
   updated_at: string;
 }
