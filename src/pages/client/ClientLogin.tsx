@@ -31,7 +31,12 @@ export default function ClientLogin() {
             if (client) {
                 setCurrentClient(client);
                 toast.success("Access Granted");
-                navigate("/client/portal");
+                // Redirect Pro users to Pro portal
+                if (client.is_pro) {
+                    navigate("/pro/portal");
+                } else {
+                    navigate("/client/portal");
+                }
             } else {
                 toast.error("Access Denied", { description: "Invalid Client ID" });
             }

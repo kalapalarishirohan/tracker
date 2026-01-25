@@ -14,6 +14,97 @@ export type Database = {
   }
   public: {
     Tables: {
+      approach_plans: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_protected: boolean
+          plan_data: Json
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_protected?: boolean
+          plan_data?: Json
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_protected?: boolean
+          plan_data?: Json
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approach_plans_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_assets: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string | null
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          name: string
+          type: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description?: string | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          name: string
+          type: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          name?: string
+          type?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_assets_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           assigned_id: string
@@ -21,6 +112,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          is_pro: boolean
           name: string
           updated_at: string
         }
@@ -30,6 +122,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          is_pro?: boolean
           name: string
           updated_at?: string
         }
@@ -39,10 +132,61 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          is_pro?: boolean
           name?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      dev_tracking: {
+        Row: {
+          client_id: string
+          created_at: string
+          end_date: string | null
+          id: string
+          notes: string | null
+          phase: string
+          progress: number
+          project_type: string
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          phase: string
+          progress?: number
+          project_type: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          phase?: string
+          progress?: number
+          project_type?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_tracking_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_stages: {
         Row: {

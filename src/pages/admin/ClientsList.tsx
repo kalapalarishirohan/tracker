@@ -52,6 +52,7 @@ export default function ClientsList() {
             email: newClient.email,
             company: newClient.company || null,
             assigned_id: newClient.assigned_id,
+            is_pro: false,
         });
 
         setIsSubmitting(false);
