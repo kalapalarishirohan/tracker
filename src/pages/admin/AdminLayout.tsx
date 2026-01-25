@@ -1,7 +1,7 @@
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useStore } from "@/store";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Users, FileText, Ticket, LogOut, FolderGit2, ShieldAlert, Command, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Users, FileText, Ticket, LogOut, FolderGit2, ShieldAlert, Command, ChevronRight, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import PageTransition from "@/components/PageTransition";
@@ -35,6 +35,7 @@ export default function AdminLayout() {
         { icon: FolderGit2, label: "Active Projects", path: "/admin/dashboard/projects" },
         { icon: FileText, label: "Submission Logs", path: "/admin/dashboard/submissions" },
         { icon: Ticket, label: "Support Tickets", path: "/admin/dashboard/tickets" },
+        { icon: Crown, label: "Pro Clients", path: "/admin/dashboard/pro-clients" },
     ];
 
     // Helper to get current page title for breadcrumb
