@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useClients } from "@/hooks/useDatabase";
 import { useClientAssets, useDevTracking, useApproachPlans, DbDevTracking, DbApproachPlan } from "@/hooks/useProClient";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Crown, Users, Image, Smartphone, Globe, Map, Plus, Trash2, Edit, Loader2, CheckCircle } from "lucide-react";
+import { Crown, Users, Image, Smartphone, Globe, Map, Plus, Trash2, Edit, Loader2, CheckCircle, Upload } from "lucide-react";
 
 interface DbProClient {
     id: string;
@@ -415,12 +415,51 @@ function DevTrackingManager({ clientId }: { clientId: string }) {
 function ApproachPlansManager({ clientId }: { clientId: string }) {
     const { plans, loading, addPlan, updatePlan, deletePlan } = useApproachPlans(clientId);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
         image_url: '',
         is_protected: true,
     });
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        const validTypes = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp', 'application/json'];
+        if (!validTypes.includes(file.type)) {
+            toast.error('Please upload an image (PNG, JPG, SVG, WebP) or Excalidraw JSON');
+            return;
+        }
+
+        setUploading(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `plans/${clientId}/${Date.now()}.${fileExt}`;
+
+            const { data, error } = await supabase.storage
+                .from('client-assets')
+                .upload(fileName, file);
+
+            if (error) throw error;
+
+            const { data: publicUrl } = supabase.storage
+                .from('client-assets')
+                .getPublicUrl(data.path);
+
+            setFormData(prev => ({ ...prev, image_url: publicUrl.publicUrl }));
+            toast.success('File uploaded successfully');
+        } catch (error) {
+            console.error('Upload error:', error);
+            toast.error('Failed to upload file');
+        } finally {
+            setUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
 
     const handleSubmit = async () => {
         if (!formData.title) {
@@ -471,9 +510,68 @@ function ApproachPlansManager({ clientId }: { clientId: string }) {
                                 <Label>Description</Label>
                                 <Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Plan description..." />
                             </div>
-                            <div>
-                                <Label>Image URL (e.g., Excalidraw export)</Label>
-                                <Input value={formData.image_url} onChange={(e) => setFormData({ ...formData, image_url: e.target.value })} placeholder="https://..." />
+                            <div className="space-y-2">
+                                <Label>Flow Diagram / Excalidraw Export</Label>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileUpload}
+                                    accept="image/*,.json"
+                                    className="hidden"
+                                />
+                                <div className="flex gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => fileInputRef.current?.click()}
+                                        disabled={uploading}
+                                        className="flex-1"
+                                    >
+                                        {uploading ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                Uploading...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload className="w-4 h-4 mr-2" />
+                                                Upload Image
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
+                                {formData.image_url && (
+                                    <div className="mt-2 p-2 bg-muted rounded-md">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs text-muted-foreground truncate flex-1">
+                                                {formData.image_url.split('/').pop()}
+                                            </span>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => setFormData({ ...formData, image_url: '' })}
+                                            >
+                                                <Trash2 className="w-3 h-3" />
+                                            </Button>
+                                        </div>
+                                        {formData.image_url.match(/\.(jpg|jpeg|png|svg|webp)$/i) && (
+                                            <img 
+                                                src={formData.image_url} 
+                                                alt="Preview" 
+                                                className="mt-2 max-h-32 rounded border"
+                                            />
+                                        )}
+                                    </div>
+                                )}
+                                <p className="text-xs text-muted-foreground">
+                                    Or paste URL directly:
+                                </p>
+                                <Input 
+                                    value={formData.image_url} 
+                                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })} 
+                                    placeholder="https://..." 
+                                />
                             </div>
                             <div className="flex items-center gap-2">
                                 <input
@@ -484,7 +582,9 @@ function ApproachPlansManager({ clientId }: { clientId: string }) {
                                 />
                                 <Label htmlFor="is_protected">Protected (confidential)</Label>
                             </div>
-                            <Button onClick={handleSubmit} className="w-full">Add Plan</Button>
+                            <Button onClick={handleSubmit} className="w-full" disabled={uploading}>
+                                Add Plan
+                            </Button>
                         </div>
                     </DialogContent>
                 </Dialog>
