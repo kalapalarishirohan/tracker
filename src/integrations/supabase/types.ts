@@ -105,6 +105,47 @@ export type Database = {
           },
         ]
       }
+      client_domains: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string | null
+          domain_type: string
+          id: string
+          name: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description?: string | null
+          domain_type: string
+          id?: string
+          name: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          domain_type?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_domains_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           assigned_id: string

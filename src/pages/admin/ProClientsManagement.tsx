@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useClients } from "@/hooks/useDatabase";
 import { useClientAssets, useDevTracking, useApproachPlans, DbDevTracking, DbApproachPlan } from "@/hooks/useProClient";
+import { useClientDomains, DbClientDomain } from "@/hooks/useClientDomains";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Crown, Users, Image, Smartphone, Globe, Map, Plus, Trash2, Edit, Loader2, CheckCircle, Upload } from "lucide-react";
+import { Crown, Users, Image, Smartphone, Globe, Map, Plus, Trash2, Edit, Loader2, CheckCircle, Upload, Link2 } from "lucide-react";
 
 interface DbProClient {
     id: string;
@@ -85,6 +86,10 @@ export default function ProClientsManagement() {
                             <TabsTrigger value="plans" className="gap-2">
                                 <Map className="w-4 h-4" />
                                 Approach Plans
+                            </TabsTrigger>
+                            <TabsTrigger value="domains" className="gap-2">
+                                <Link2 className="w-4 h-4" />
+                                Domains
                             </TabsTrigger>
                         </>
                     )}
@@ -170,6 +175,10 @@ export default function ProClientsManagement() {
 
                         <TabsContent value="plans" className="mt-6">
                             <ApproachPlansManager clientId={selectedClientId} />
+                        </TabsContent>
+
+                        <TabsContent value="domains" className="mt-6">
+                            <DomainsManager clientId={selectedClientId} />
                         </TabsContent>
                     </>
                 )}
@@ -632,6 +641,225 @@ function ApproachPlansManager({ clientId }: { clientId: string }) {
                             ))}
                         </TableBody>
                     </Table>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
+// Domains Manager Component
+function DomainsManager({ clientId }: { clientId: string }) {
+    const { domains, loading, addDomain, deleteDomain } = useClientDomains(clientId);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [formData, setFormData] = useState({
+        domain_type: 'core' as 'core' | 'subdomain',
+        name: '',
+        url: '',
+        description: '',
+    });
+
+    const handleSubmit = async () => {
+        if (!formData.name || !formData.url) {
+            toast.error('Please enter name and URL');
+            return;
+        }
+
+        // Validate URL
+        try {
+            new URL(formData.url);
+        } catch {
+            toast.error('Please enter a valid URL');
+            return;
+        }
+
+        await addDomain({
+            client_id: clientId,
+            domain_type: formData.domain_type,
+            name: formData.name,
+            url: formData.url,
+            description: formData.description || null,
+        });
+
+        toast.success('Domain added');
+        setIsDialogOpen(false);
+        setFormData({ domain_type: 'core', name: '', url: '', description: '' });
+    };
+
+    if (loading) return <Loader2 className="w-6 h-6 animate-spin" />;
+
+    const coreDomains = domains.filter(d => d.domain_type === 'core');
+    const subdomains = domains.filter(d => d.domain_type === 'subdomain');
+
+    return (
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                    <Link2 className="w-5 h-5" />
+                    Client Domains
+                </CardTitle>
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button>
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add Domain
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Add New Domain</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 pt-4">
+                            <div>
+                                <Label>Domain Type</Label>
+                                <Select 
+                                    value={formData.domain_type} 
+                                    onValueChange={(v: 'core' | 'subdomain') => setFormData({ ...formData, domain_type: v })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="core">Core Domain</SelectItem>
+                                        <SelectItem value="subdomain">Subdomain</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label>Name</Label>
+                                <Input 
+                                    value={formData.name} 
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })} 
+                                    placeholder="e.g., Main Website, Admin Portal" 
+                                />
+                            </div>
+                            <div>
+                                <Label>URL</Label>
+                                <Input 
+                                    value={formData.url} 
+                                    onChange={(e) => setFormData({ ...formData, url: e.target.value })} 
+                                    placeholder="https://example.com" 
+                                />
+                            </div>
+                            <div>
+                                <Label>Description (optional)</Label>
+                                <Textarea 
+                                    value={formData.description} 
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })} 
+                                    placeholder="Brief description..." 
+                                />
+                            </div>
+                            <Button onClick={handleSubmit} className="w-full">
+                                Add Domain
+                            </Button>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                {domains.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">No domains added yet.</p>
+                ) : (
+                    <>
+                        {coreDomains.length > 0 && (
+                            <div>
+                                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                                    <Globe className="w-4 h-4" />
+                                    Core Domains ({coreDomains.length})
+                                </h3>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Name</TableHead>
+                                            <TableHead>URL</TableHead>
+                                            <TableHead>Description</TableHead>
+                                            <TableHead>Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {coreDomains.map((domain) => (
+                                            <TableRow key={domain.id}>
+                                                <TableCell className="font-medium">{domain.name}</TableCell>
+                                                <TableCell className="font-mono text-xs max-w-xs truncate">
+                                                    {domain.url}
+                                                </TableCell>
+                                                <TableCell className="max-w-xs truncate">
+                                                    {domain.description || '-'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex gap-2">
+                                                        <Button 
+                                                            size="sm" 
+                                                            variant="outline" 
+                                                            onClick={() => window.open(domain.url, '_blank')}
+                                                        >
+                                                            Open
+                                                        </Button>
+                                                        <Button 
+                                                            size="sm" 
+                                                            variant="destructive" 
+                                                            onClick={() => deleteDomain(domain.id)}
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
+
+                        {subdomains.length > 0 && (
+                            <div>
+                                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                                    <Link2 className="w-4 h-4" />
+                                    Subdomains ({subdomains.length})
+                                </h3>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Name</TableHead>
+                                            <TableHead>URL</TableHead>
+                                            <TableHead>Description</TableHead>
+                                            <TableHead>Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {subdomains.map((domain) => (
+                                            <TableRow key={domain.id}>
+                                                <TableCell className="font-medium">{domain.name}</TableCell>
+                                                <TableCell className="font-mono text-xs max-w-xs truncate">
+                                                    {domain.url}
+                                                </TableCell>
+                                                <TableCell className="max-w-xs truncate">
+                                                    {domain.description || '-'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex gap-2">
+                                                        <Button 
+                                                            size="sm" 
+                                                            variant="outline" 
+                                                            onClick={() => window.open(domain.url, '_blank')}
+                                                        >
+                                                            Open
+                                                        </Button>
+                                                        <Button 
+                                                            size="sm" 
+                                                            variant="destructive" 
+                                                            onClick={() => deleteDomain(domain.id)}
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
+                    </>
                 )}
             </CardContent>
         </Card>
