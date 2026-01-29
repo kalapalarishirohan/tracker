@@ -1,7 +1,10 @@
+import { useEffect } from "react";
 import { useClientStore } from "@/store/clientStore";
 import { useDevTracking } from "@/hooks/useProClient";
+import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface DevTrackingPageProps {
     projectType: 'app' | 'web';
@@ -9,7 +12,43 @@ interface DevTrackingPageProps {
 
 export default function DevTrackingPage({ projectType }: DevTrackingPageProps) {
     const currentClient = useClientStore((state) => state.currentClient);
-    const { tracking, loading } = useDevTracking(currentClient?.id);
+    const { tracking, loading, fetchTracking } = useDevTracking(currentClient?.id);
+
+    // Real-time subscription for dev tracking updates
+    useEffect(() => {
+        if (!currentClient?.id) return;
+
+        const channel = supabase
+            .channel(`dev-tracking-${currentClient.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'dev_tracking',
+                    filter: `client_id=eq.${currentClient.id}`,
+                },
+                (payload) => {
+                    console.log('Dev tracking update:', payload);
+                    fetchTracking();
+                    
+                    if (payload.eventType === 'UPDATE') {
+                        toast.success('Development phase updated!', {
+                            description: 'Your tracking data has been refreshed.',
+                        });
+                    } else if (payload.eventType === 'INSERT') {
+                        toast.success('New development phase added!', {
+                            description: 'Check your updated roadmap.',
+                        });
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [currentClient?.id, fetchTracking]);
 
     if (!currentClient) return null;
 
