@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useClientStore } from "@/store/clientStore";
 import { useClientAssets, useDevTracking, useApproachPlans } from "@/hooks/useProClient";
 import { useClientDomains } from "@/hooks/useClientDomains";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -9,13 +10,50 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Globe, Link2, ExternalLink } from "lucide-react";
 import EmbeddedViewer from "@/components/EmbeddedViewer";
+import { toast } from "sonner";
 
 export default function ProDashboard() {
     const currentClient = useClientStore((state) => state.currentClient);
     const { assets } = useClientAssets(currentClient?.id);
     const { tracking } = useDevTracking(currentClient?.id);
     const { plans } = useApproachPlans(currentClient?.id);
-    const { domains } = useClientDomains(currentClient?.id);
+    const { domains, fetchDomains } = useClientDomains(currentClient?.id);
+    
+    // Real-time subscription for domain updates
+    useEffect(() => {
+        if (!currentClient?.id) return;
+
+        const channel = supabase
+            .channel(`client-domains-${currentClient.id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'client_domains',
+                    filter: `client_id=eq.${currentClient.id}`,
+                },
+                (payload) => {
+                    console.log('Domain update:', payload);
+                    fetchDomains();
+                    
+                    if (payload.eventType === 'INSERT') {
+                        toast.success('New domain added!', {
+                            description: 'Your domains have been updated.',
+                        });
+                    } else if (payload.eventType === 'UPDATE') {
+                        toast.success('Domain updated!');
+                    } else if (payload.eventType === 'DELETE') {
+                        toast.info('Domain removed.');
+                    }
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [currentClient?.id, fetchDomains]);
     
     const [embeddedUrl, setEmbeddedUrl] = useState<{ url: string; title: string } | null>(null);
 
