@@ -33,11 +33,20 @@ export default function Contact() {
                     data: formData,
                     status: 'pending'
                 });
-            if (dbError) console.error("Database error:", dbError);
-            const { error } = await supabase.functions.invoke('send-admin-notification', {
-                body: { type: 'contact', data: formData }
-            });
-            if (error) console.error("Email notification error:", error);
+            if (dbError) {
+                console.error("Database error:", dbError);
+                toast.error("Failed to send message", { description: "Please try again later." });
+                setIsSubmitting(false);
+                return;
+            }
+            // Send email notification (non-blocking)
+            try {
+                await supabase.functions.invoke('send-admin-notification', {
+                    body: { type: 'contact', data: formData }
+                });
+            } catch (emailError) {
+                console.error("Email notification error:", emailError);
+            }
             setIsSubmitted(true);
             toast.success("Message sent successfully");
         } catch (error) {
