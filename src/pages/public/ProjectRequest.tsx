@@ -38,11 +38,20 @@ export default function ProjectRequest() {
                     data: formData,
                     status: 'pending'
                 });
-            if (dbError) console.error("Database error:", dbError);
-            const { error: emailError } = await supabase.functions.invoke('send-admin-notification', {
-                body: { type: 'project_request', data: formData }
-            });
-            if (emailError) console.error("Email notification error:", emailError);
+            if (dbError) {
+                console.error("Database error:", dbError);
+                toast.error("Submission failed", { description: "Please try again later." });
+                setIsSubmitting(false);
+                return;
+            }
+            // Send email notification (non-blocking)
+            try {
+                await supabase.functions.invoke('send-admin-notification', {
+                    body: { type: 'project_request', data: formData }
+                });
+            } catch (emailError) {
+                console.error("Email notification error:", emailError);
+            }
             setIsSubmitted(true);
             toast.success("Request sent successfully");
         } catch (error) {
