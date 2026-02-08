@@ -11,6 +11,7 @@ import ProjectsList from "@/pages/admin/ProjectsList";
 import SubmissionsList from "@/pages/admin/SubmissionsList";
 import TicketsList from "@/pages/admin/TicketsList";
 import ProClientsManagement from "@/pages/admin/ProClientsManagement";
+import DeveloperManagement from "@/pages/admin/DeveloperManagement";
 import ClientLogin from "@/pages/client/ClientLogin";
 import ClientLayout from "@/pages/client/ClientLayout";
 import ClientDashboard from "@/pages/client/ClientDashboard";
@@ -55,6 +56,7 @@ function App() {
           <Route path="submissions" element={<SubmissionsList />} />
           <Route path="tickets" element={<TicketsList />} />
           <Route path="pro-clients" element={<ProClientsManagement />} />
+          <Route path="developers" element={<DeveloperManagement />} />
         </Route>
 
         {/* Client Routes */}
